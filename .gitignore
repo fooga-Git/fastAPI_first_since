@@ -9,4 +9,5 @@ git status
 git commit -m "Add FastAPI application: tasks CRUD operations"
 
 # 5. Отправить на GitHub
-git push origin main
+git push origin main__pycache__/
+*.pyc
