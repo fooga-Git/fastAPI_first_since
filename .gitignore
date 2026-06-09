@@ -1,13 +1,34 @@
-venv 
-tasks.db
-__pycache__git add .
-
-# 3. Посмотреть, что будет добавлено
-git status
-
-# 4. Сделать коммит
-git commit -m "Add FastAPI application: tasks CRUD operations"
-
-# 5. Отправить на GitHub
-git push origin main__pycache__/
+cat > .gitignore << 'EOF'
+# Python
+__pycache__/
 *.pyc
+*.pyo
+.mypy_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Poetry
+poetry.lock
+poetry.toml
+
+# Database
+*.db
+*.sqlite
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Docker
+*.pid
+EOF

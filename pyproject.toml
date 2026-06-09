@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "booking-service-backend-fastapi"
+version = "0.1.0"
+description = ""
+authors = ["fooga-Git <fooga_00@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.136.3"
+uvicorn = "^0.48.0"
+sqlalchemy = {extras = ["mypy"], version = "^2.0.50"}
+aiosqlite = "^0.22.1"
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+werkzeug = "^3.1.8"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+pydantic-settings = "^2.14.1"
+bcrypt = "4.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.3"
+httpx = "^0.28.1"
+pytest-asyncio = "^1.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
