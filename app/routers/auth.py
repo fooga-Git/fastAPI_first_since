@@ -1,10 +1,9 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Form
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 
 from app.repositories.user_repository import get_user_or_error
-from app.schemas.user import UserCreate, UserLogin
-from app.schemas.token import RefreshRequest, Token
+from app.schemas.token import Token
 from app.core.security import (
     verify_password,
     get_password_hash,
@@ -20,21 +19,25 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/register", summary="Регистрация")
-async def register(data: Annotated[UserCreate, Depends()]):
+async def register(
+    login: str = Form(...),
+    password: str = Form(...),
+    full_name: str = Form(...),
+    email: str = Form(...),
+):
     async with new_session() as session:
         existing = await session.execute(
-            select(User).where((User.login == data.login)
-                               | (User.email == data.email))
+            select(User).where((User.login == login) | (User.email == email))
         )
         if existing.scalar_one_or_none():
             raise HTTPException(400, "Данное значение уже используется")
 
-        hashed = get_password_hash(data.password)
+        hashed = get_password_hash(password)
         user = User(
-            login=data.login,
+            login=login,
             password_hash=hashed,
-            full_name=data.full_name,
-            email=data.email,
+            full_name=full_name,
+            email=email,
             role="employee"
         )
         session.add(user)
@@ -47,16 +50,16 @@ async def register(data: Annotated[UserCreate, Depends()]):
     response_model=Token,
     summary="Вход в систему",
 )
-async def login(user_data: Annotated[UserLogin, Depends()]):
+async def login(
+    login: str = Form(...),
+    password: str = Form(...),
+):
     async with new_session() as session:
-        stmt = select(User).where(User.login == user_data.login)
+        stmt = select(User).where(User.login == login)
         result = await session.execute(stmt)
         user = result.scalar_one_or_none()
 
-        if not user or not verify_password(
-            user_data.password,
-            user.password_hash,
-        ):
+        if not user or not verify_password(password, user.password_hash):
             raise HTTPException(401, "Неверный логин или пароль.")
 
         access_token = create_access_token({"user_id": user.id})
@@ -70,8 +73,8 @@ async def login(user_data: Annotated[UserLogin, Depends()]):
 
 
 @router.post("/refresh", response_model=Token, summary="Обновление токена")
-async def refresh_token(data: Annotated[RefreshRequest, Depends()]):
-    payload = decode_token(data.refresh_token)
+async def refresh_token(refresh_token: str = Form(...)):
+    payload = decode_token(refresh_token)
     if not payload:
         raise HTTPException(401, "Invalid refresh token")
 

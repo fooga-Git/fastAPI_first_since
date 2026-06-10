@@ -10,14 +10,15 @@ from app.routers import (
     users,
     rooms,
 )
+from app.scripts.create_super_admin import create_super_admin
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_tables()
-    print("Сервер запущен")
+    await create_super_admin("admin", "admin123")
+    print("✅ Супер админ создан (или уже существует)")
     yield
-    print("Сервер остановлен")
 
 app = FastAPI(
     title="Booking Service API",

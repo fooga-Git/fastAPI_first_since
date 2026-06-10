@@ -1,78 +1,89 @@
-# Сервис бронирования переговорных комнат
+# Booking Service — сервис бронирования переговорных комнат
 
-FastAPI приложение для бронирования переговорных комнат в коворкинге.
+Сервис для автоматизации бронирования переговорных комнат в коворкинге.  
+Сотрудники могут просматривать доступность комнат, создавать и отменять свои бронирования.  
+Администраторы могут управлять любыми бронированиями.
 
-## Технологии
+👨‍💻 Автор
+Суродин Денис Эдуардович https://github.com/fooga-Git
 
-- Python 3.12
-- FastAPI
-- SQLAlchemy 2.0 (async)
-- SQLite
-- JWT аутентификация
-- Poetry
 
-## Установка и запуск
+## 🛠 Технологии
 
-### 1. Клонирование репозитория
+- **Python** 3.12
+- **FastAPI** — веб-фреймворк
+- **Poetry** — управление зависимостями
+- **PostgreSQL** — база данных для `docker-compose.yml` 
+- **SQLite** — база данныз для локальной работы
+- **SQLAlchemy** (async) — ORM
+- **JWT** — аутентификация
+- **Docker** / **Docker Compose** — контейнеризация
 
+## 👑 Супер админ
+
+**Логин:** `admin`  
+**Пароль:** `admin123`
+
+> **⚠️ Внимание:** В учебном проекте пароль указан в документации для удобства проверяющих.  
+> **В реальном проекте** пароль никогда не хранится в коде или README, а задаётся через переменные окружения или менеджеры секретов.
+> **При запуске сервера локально и через Docker Супер админ создаётся автоматически.
+
+                                            ** Локальная разработка **
+
+1. Клонирование репозитория
 ```bash
 git clone https://github.com/fooga-Git/fastAPI_first_since.git
 cd fastAPI_first_since
 
-2. Установка зависимости
+2. Установка зависимостей
+```bash
+poetry install
 
-bash
-poetry install --no-root
+3. Запуск сервера
+```bash
+poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 
-3. Настройка окружения
-bash
-echo 'SECRET_KEY=your-secret-key-here' > .env
-echo 'ALGORITHM=HS256' >> .env
-echo 'ACCESS_TOKEN_EXPIRE_MINUTES=480' >> .env
-echo 'REFRESH_TOKEN_EXPIRE_DAYS=7' >> .env
+4. Тестирование с помощью библиотеки pytest
+```bash
+poetry run pytest -v
 
-4. Создание базы данных и первый запуск
-bash
-# Очистка старой БД (если есть)
-rm -f *.db
+5. Проверка API
+Открой в браузере: http://localhost:8001/docs
 
-# Создание супер админа
-PYTHONPATH=. poetry run python app/scripts/create_super_admin.py
+База данных: SQLite (файл booking.db)
 
-# Запуск сервера
-poetry run uvicorn app.main:app --reload
+                                            ## 🐳 Запуск через Docker
+                                        Способ 1: `docker run`  (Sqlite)
+```bash
+# Сборка образа
+docker build -t booking-service:latest .
 
-5. Сброс пароля супер админа
-bash
-PYTHONPATH=. poetry run python app/scripts/reset_super_admin_password.py
+# Запуск контейнера (Sqlite)
+docker run -d \
+  --name booking-app \
+  -p 8000:8000 \
+  -e DATABASE_URL="sqlite:///./booking.db" \
+  booking-service:latest
 
-## API документация
-- `Swagger UI: http://localhost:8000/docs
+Открой в браузере: http://localhost:8000/docs
 
-## Основные эндпоинты
+# Остановка и удаление контейнера
+docker stop booking-app
+docker rm booking-app
 
-**Аутентификация**
+                                        Способ 2: `docker-compose up`  (PostgreSQL)
+```bash
+# Запуск контейнеров (PostgreSQL + приложение)
+docker-compose up -d
 
-- `POST /auth/register` — регистрация сотрудника
-- `POST /auth/login` — вход (JWT)
-- `POST /auth/refresh` — обновление токенов
-- `GET /users/me` — информация о себе
+# Проверка статуса контейнеров
+docker ps
 
-**Комнаты**
+# Просмотр логов приложения
+docker-compose logs app
 
-- `GET /rooms` — список комнат (залогиненные)
-- `POST /rooms` — создать комнату (админ)
-- `PATCH /rooms/{id}` — обновить комнату (админ)
-- `DELETE /rooms/{id}` — удалить комнату (админ)
-- `GET /rooms/{id}/slots` — слоты комнаты (залогиненные)
+# Проверка работоспособности
+Открой в браузере: http://localhost:8000/docs
 
-**Бронирования**
-
-- `POST /bookings` — создать бронь (сотрудник)
-- `GET /bookings` — список броней (сотрудник — свои, админ — все)
-- `DELETE /bookings/{id}` — отменить бронь (сотрудник — свою, админ — любую)
-
-**Администрирование**
-
-- `POST /admin/set-role` — назначить роль (админ)
-- `DELETE /admin/users/{id}` — удалить пользователя (админ)
+# Остановка и удаление всех контейнеров и volumes
+docker-compose down -v

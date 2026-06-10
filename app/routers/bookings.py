@@ -15,7 +15,6 @@ router = APIRouter(prefix="/bookings", tags=["Bookings"])
 
 @router.post(
     "/",
-    response_model=BookingResponse,
     summary="Создание Брони",
 )
 async def create_booking(
@@ -55,7 +54,6 @@ async def create_booking(
         )
         session.add(booking)
         await session.commit()
-        await session.refresh(booking)
         return booking
 
 

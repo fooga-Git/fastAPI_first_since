@@ -1,3 +1,13 @@
-venv
-Dockerfile
-tasks.db    
+.venv/
+venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.env
+*.db
+.pytest_cache/
+tests/
+.git/
+README.md
+*.md

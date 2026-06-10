@@ -1,5 +1,5 @@
 import asyncio
-import getpass
+import sys
 
 from sqlalchemy import select
 
@@ -8,23 +8,12 @@ from app.models import User
 from app.core.security import get_password_hash
 
 
-async def create_super_admin():
-    print("=== Создание супер админа ===\n")
-
-    login = input("Логин: ").strip()
-    if not login:
-        print("Логин обязателен")
-        return
-
-    password = getpass.getpass("Пароль: ")
-    if not password:
-        print("Пароль обязателен")
-        return
-
+async def create_super_admin(login: str = "admin", password: str = "admin123"):
     async with new_session() as session:
-        result = await session.execute(select(User).where(User.id == 1))
+        result = await session.execute(
+            select(User).where(User.login == login))
         if result.scalar_one_or_none():
-            print("Супер админ уже существует")
+            print("Админ уже существует")
             return
 
         admin = User(
@@ -36,8 +25,10 @@ async def create_super_admin():
         )
         session.add(admin)
         await session.commit()
-        print(f"Супер админ создан: {login}")
+        print(f"✅ Супер админ создан: {login}")
 
 
 if __name__ == "__main__":
-    asyncio.run(create_super_admin())
+    login = sys.argv[1] if len(sys.argv) > 1 else "admin"
+    password = sys.argv[2] if len(sys.argv) > 2 else "admin123"
+    asyncio.run(create_super_admin(login, password))
