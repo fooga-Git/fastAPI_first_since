@@ -17,9 +17,6 @@ poetry.toml
 *.db
 *.sqlite
 
-# Environment variables
-.env
-
 # IDE
 .vscode/
 .idea/
